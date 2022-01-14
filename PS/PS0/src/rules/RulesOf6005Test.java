@@ -22,4 +22,13 @@ public class RulesOf6005Test {
         assertTrue("Expected true: self-written required code",
                 RulesOf6005.mayUseCodeInAssignment(true, false, true, true, true));
     }
+
+    @Test
+    public void testSourceCodeInAssignment() {
+        assertTrue("Expected true: cited publicly available code for not implementation-required work",
+                RulesOf6005.mayUseCodeInAssignment(false, true, false, true, false));
+
+        assertFalse("Expected false: cited publicly available code for implementation-required work",
+                RulesOf6005.mayUseCodeInAssignment(false, true, false, true, true));
+    }
 }
