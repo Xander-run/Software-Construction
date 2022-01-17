@@ -55,7 +55,7 @@ public class ExtractTest {
         Timespan timespan = Extract.getTimespan(Arrays.asList(tweet1));
 
         assertEquals("Expected start", d1, timespan.getStart());
-        assertEquals("Expected end", d2, timespan.getStart());
+        assertEquals("Expected end", d1, timespan.getStart());
     }
 
     // This test covers mentioned users number == 0
