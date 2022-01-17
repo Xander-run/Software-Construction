@@ -4,7 +4,9 @@
 package twitter;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -15,6 +17,8 @@ import java.util.Set;
  * private methods or classes if you like.
  */
 public class Extract {
+
+    private final static char AT_CHAR = '@';
 
     /**
      * Get the time period spanned by tweets.
@@ -59,7 +63,49 @@ public class Extract {
      *         include a username at most once.
      */
     public static Set<String> getMentionedUsers(List<Tweet> tweets) {
-        throw new RuntimeException("not implemented");
+        Set<String> mentionedUsers = new HashSet<>();
+
+        for (Tweet tweet : tweets) {
+            char[] charArray = tweet.getText().toCharArray();
+            for (int i = 0; i < charArray.length - 1; i++) {  // the AT sign at the end of Text should not be considered
+                if (charArray[i] == AT_CHAR) {
+                    if (i > 0) {
+                        if (!isAllowedTweetUserChar(charArray[i - 1])) {
+                            String user = getMentionedUser(charArray, i);
+                            if (user.length() > 0) {
+                                user = user.toUpperCase(Locale.ROOT);
+                                mentionedUsers.add(user);
+                                i += user.length();
+                            }
+                        }
+                    } else {
+                        String user = getMentionedUser(charArray, i);
+                        if (user.length() > 0) {
+                            user = user.toUpperCase(Locale.ROOT);
+                            mentionedUsers.add(user);
+                            i += user.length();
+                        }
+                    }
+                }
+            }
+        }
+
+        return mentionedUsers;
     }
 
+    public static boolean isAllowedTweetUserChar(char theChar) {
+        return (theChar >= 'a' && theChar <= 'z' || theChar >= 'A' && theChar <= 'Z' || theChar == '_' || theChar == '-');
+    }
+
+    private static String getMentionedUser(char[] charArray, int start) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = start + 1; i < charArray.length; i++) {
+            if (isAllowedTweetUserChar(charArray[i])) {
+                sb.append(charArray[i]);
+            } else {
+                break;
+            }
+        }
+        return sb.toString();
+    }
 }

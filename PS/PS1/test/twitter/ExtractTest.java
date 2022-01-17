@@ -32,7 +32,7 @@ public class ExtractTest {
     private static final Tweet tweet2 = new Tweet(2, "bbitdiddle", "rivest talk in 30 minutes #hype", d2);
     private static final Tweet tweet3 = new Tweet(3, "alyssa", "hello @bob, this is my friend @michael", d1);
     private static final Tweet tweet4 = new Tweet(4, "alyssa", "@java @JAVA @Java, are u ok?", d1);
-    private static final Tweet tweet5 = new Tweet(5, "alyssa", "Email @bob, and here is his email address: bob@somesite.com", d1);
+    private static final Tweet tweet5 = new Tweet(5, "alyssa", "Email @bob, and here is his email address: bob@somesite.com @@", d1);
 
 
     @Test(expected=AssertionError.class)
@@ -96,9 +96,22 @@ public class ExtractTest {
     public void testGetMentionedUsersWithTwoTweets() {
         Set<String> mentionedUsers = Extract.getMentionedUsers((Arrays.asList(tweet3, tweet4)));
 
-        assertEquals("expected set with size 2", 2, mentionedUsers.size());
+        assertEquals("expected set with size 3", 3, mentionedUsers.size());
     }
 
+    @Test
+    public void testIsAllowedTweetUserChar() {
+        assertTrue(Extract.isAllowedTweetUserChar('a'));
+        assertTrue(Extract.isAllowedTweetUserChar('e'));
+        assertTrue(Extract.isAllowedTweetUserChar('z'));
+        assertTrue(Extract.isAllowedTweetUserChar('A'));
+        assertTrue(Extract.isAllowedTweetUserChar('E'));
+        assertTrue(Extract.isAllowedTweetUserChar('Z'));
+        assertTrue(Extract.isAllowedTweetUserChar('_'));
+        assertTrue(Extract.isAllowedTweetUserChar('-'));
+        assertTrue(Extract.isAllowedTweetUserChar('-'));
+        assertTrue(!Extract.isAllowedTweetUserChar('8'));
+    }
     /*
      * Warning: all the tests you write here must be runnable against any
      * Extract class that follows the spec. It will be run against several staff
