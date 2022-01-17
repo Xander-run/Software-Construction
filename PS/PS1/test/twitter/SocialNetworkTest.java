@@ -5,22 +5,45 @@ package twitter;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.Instant;
+import java.util.*;
 
 import org.junit.Test;
 
 public class SocialNetworkTest {
 
     /*
-     * TODO: your testing strategies for these methods should go here.
-     * See the ic03-testing exercise for examples of what a testing strategy comment looks like.
-     * Make sure you have partitions.
+     * Partition for guessFollowsGraph(List<Tweet> tweets) -> Map<String, Set<String>>
+     *     tweets.size() == 0, > 0
+     *
+     * Partition for influencers(Map<String, Set<String>> followsGraph) -> List<String>
+     *     followsGraph followsGraph K-V pair number == 0, > 0
      */
-    
+    private static final Instant d1 = Instant.parse("2016-02-17T10:00:00Z");
+    private static final Instant d2 = Instant.parse("2016-02-17T11:00:00Z");
+
+    private static final Tweet tweet1 = new Tweet(1, "alyssa", "@bbitdiddle is it reasonable to talk about rivest so much?", d1);
+    private static final Tweet tweet2 = new Tweet(2, "bbitdiddle", "@alyssa rivest talk in 30 minutes #hype", d2);
+    private static final Tweet tweet3 = new Tweet(2, "bob", "@alyssa rivest talk in 30 minutes #hype", d2);
+
+    private static final String bobName = "Bob";
+    private static final Set<String> bobFollowers = new HashSet<>();
+    private static final String ericName = "Eric";
+    private static final Set<String> ericFollowers = new HashSet<>();
+
+    private static final Map<String, Set<String>> followsGraph1 = new HashMap<>();
+    private static final List<Tweet> tweetList1 = new LinkedList<>();
+
+    static {
+        tweetList1.add(tweet1);
+        tweetList1.add(tweet2);
+        tweetList1.add(tweet3);
+        bobFollowers.addAll(Arrays.asList("A", "B", "C"));
+        ericFollowers.addAll(Arrays.asList("A", "B"));
+        followsGraph1.put(bobName, bobFollowers);
+        followsGraph1.put(ericName, ericFollowers);
+    }
+
     @Test(expected=AssertionError.class)
     public void testAssertionsEnabled() {
         assert false; // make sure assertions are enabled with VM argument: -ea
@@ -32,6 +55,12 @@ public class SocialNetworkTest {
         
         assertTrue("expected empty graph", followsGraph.isEmpty());
     }
+
+    @Test
+    public void testGuessFollowsGraphNonEmpty() {
+        Map<String, Set<String>> followsGraph = SocialNetwork.guessFollowsGraph(tweetList1);
+        assertTrue("Excepted non-empty Set", !followsGraph.isEmpty());
+    }
     
     @Test
     public void testInfluencersEmpty() {
@@ -39,6 +68,13 @@ public class SocialNetworkTest {
         List<String> influencers = SocialNetwork.influencers(followsGraph);
         
         assertTrue("expected empty list", influencers.isEmpty());
+    }
+
+    @Test
+    public void testInfluencersNonEmpty() {
+        List<String> influencers = SocialNetwork.influencers(followsGraph1);
+
+        assertTrue("Expected non-empty list", !influencers.isEmpty());
     }
 
     /*
