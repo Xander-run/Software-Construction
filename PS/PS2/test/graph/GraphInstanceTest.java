@@ -88,7 +88,7 @@ public abstract class GraphInstanceTest {
         assertEquals(2, graph.vertices().size());
         assertTrue(graph.vertices().contains(string1));
         assertTrue(graph.vertices().contains(string2));
-        assertTrue(graph.remove(string1));
+        assertTrue(graph.remove(string2));
         assertEquals(1, graph.vertices().size());
         assertTrue(graph.vertices().contains(string1));
         assertFalse(graph.vertices().contains(string2));

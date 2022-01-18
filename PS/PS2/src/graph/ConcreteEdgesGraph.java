@@ -3,11 +3,7 @@
  */
 package graph;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An implementation of Graph.
@@ -16,46 +12,105 @@ import java.util.Set;
  */
 public class ConcreteEdgesGraph implements Graph<String> {
     
-    private final Set<String> vertices = new HashSet<>();
-    private final List<Edge> edges = new ArrayList<>();
+    private Set<String> vertices;
+    private List<Edge> edges;
     
     // Abstraction function:
-    //   TODO
+    //   AF(vertices, edges) = the graph that has and only has all the vertices and edges
     // Representation invariant:
-    //   TODO
+    //   All the vertices of the edges belongs to vertices set
     // Safety from rep exposure:
-    //   TODO
+    //   All fields are made private
+    //   vertices and edges can be mutated by their reference, so the get method returns a defensive copy
     
-    // TODO constructor
+    public ConcreteEdgesGraph() {
+        vertices = new HashSet<>();
+        edges = new ArrayList<>();
+        checkRep();
+    }
     
-    // TODO checkRep
+    private void checkRep() {
+        for (Edge edge : edges) {
+            assert vertices.contains(edge.getSource()) && vertices.contains(edge.getTarget());
+        }
+    }
     
     @Override public boolean add(String vertex) {
-        throw new RuntimeException("not implemented");
+        if (vertices.contains(vertex)) {
+            return false;
+        } else {
+            vertices.add(vertex);
+            checkRep();
+            return true;
+        }
     }
     
     @Override public int set(String source, String target, int weight) {
-        throw new RuntimeException("not implemented");
+        boolean found = false;
+        int weightBefore = -1;   // non-negative if found
+        for (Edge edge : edges) {
+            if (edge.getSource().equals(source) && edge.getTarget().equals(target)) {
+                found = true;
+                weightBefore = edge.getWeight();
+                edge.setWeight(weight);
+            }
+        }
+        checkRep();
+        if (!found) {
+            edges.add(new Edge(source, target, weight));
+            checkRep();
+            return 0;
+        } else {
+            return weightBefore;
+        }
     }
     
     @Override public boolean remove(String vertex) {
-        throw new RuntimeException("not implemented");
+        boolean ret = vertices.remove(vertex);
+        LinkedList<Edge> newEdges = new LinkedList<>();
+        for (Edge edge : edges) {
+            if (!edge.getSource().equals(vertex) && !edge.getTarget().equals(vertex)) {
+                newEdges.add(edge);
+            }
+        }
+        edges = newEdges;
+        checkRep();
+        return ret;
     }
     
     @Override public Set<String> vertices() {
-        throw new RuntimeException("not implemented");
+        return new HashSet<>(vertices);
     }
     
     @Override public Map<String, Integer> sources(String target) {
-        throw new RuntimeException("not implemented");
+        Map<String, Integer> sourceMap = new HashMap<>();
+        for (Edge edge : edges) {
+            if (edge.getTarget().equals(target)) {
+                sourceMap.put(edge.getSource(), edge.getWeight());
+            }
+        }
+        checkRep();
+        return sourceMap;
     }
     
     @Override public Map<String, Integer> targets(String source) {
-        throw new RuntimeException("not implemented");
+        Map<String, Integer> targetMap = new HashMap<>();
+        for (Edge edge : edges) {
+            if (edge.getSource().equals(source)) {
+                targetMap.put(edge.getTarget(), edge.getWeight());
+            }
+        }
+        checkRep();
+        return targetMap;
     }
-    
-    // TODO toString()
-    
+
+    @Override
+    public String toString() {
+        return "ConcreteEdgesGraph{" +
+                "vertices=" + vertices +
+                ", edges=" + edges +
+                '}';
+    }
 }
 
 /**
@@ -68,21 +123,49 @@ public class ConcreteEdgesGraph implements Graph<String> {
  */
 class Edge {
     
-    // TODO fields
+    private final String source;
+    private final String target;
+    private int weight;
     
     // Abstraction function:
-    //   TODO
+    //   AF(source, target, weight) = a directed edge from the "source" to "target" with weight "weight"
     // Representation invariant:
-    //   TODO
+    //   The Edge exist
     // Safety from rep exposure:
-    //   TODO
+    //   The source and target are private and final String, so the reference can't be reassigned or mutated.
+    //   Weight can be reassigned by setWeight(int) method
     
-    // TODO constructor
+    public Edge(String source, String target, int weight) {
+        this.source = source;
+        this.target = target;
+        this.weight = weight;
+    }
     
-    // TODO checkRep
-    
-    // TODO methods
-    
-    // TODO toString()
-    
+    private void checkRep() {}
+
+    public String getSource() {
+        return source;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
+    @Override
+    public String toString() {
+        return "Edge{" +
+                "source='" + source + '\'' +
+                ", target='" + target + '\'' +
+                ", weight=" + weight +
+                '}';
+    }
+
 }
