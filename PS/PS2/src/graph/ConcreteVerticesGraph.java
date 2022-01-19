@@ -12,9 +12,9 @@ import java.util.*;
  * 
  * <p>PS2 instructions: you MUST use the provided rep.
  */
-public class ConcreteVerticesGraph implements Graph<String> {
+public class ConcreteVerticesGraph<L> implements Graph<L> {
     
-    private final List<Vertex> vertices;
+    private final List<Vertex<L>> vertices;
     
     // Abstraction function:
     //   AF(vertices) -> the graph that has and only has the vertices
@@ -32,22 +32,22 @@ public class ConcreteVerticesGraph implements Graph<String> {
     // lazy change, so the checkRep() is left empty
     public void checkRep() {}
     
-    @Override public boolean add(String vertex) {
-        for (Vertex containedVertex : vertices) {
+    @Override public boolean add(L vertex) {
+        for (Vertex<L> containedVertex : vertices) {
             if (containedVertex.getValue().equals(vertex)) {
                 return false;
             }
         }
-        vertices.add(new Vertex(vertex));
+        vertices.add(new Vertex<>(vertex));
         return true;
     }
     
-    @Override public int set(String source, String target, int weight) {
+    @Override public int set(L source, L target, int weight) {
         int weightBefore = -1;
         boolean found = false;
 
         // set the source vertex
-        for (Vertex theVertex : vertices) {
+        for (Vertex<L> theVertex : vertices) {
             if (theVertex.getValue().equals(source)) {
                 if (theVertex.getTargetWeightMap().containsKey(target)) {
                     found = true;
@@ -63,7 +63,7 @@ public class ConcreteVerticesGraph implements Graph<String> {
         }
 
         // set the target vertex
-        for (Vertex theVertex : vertices) {
+        for (Vertex<L> theVertex : vertices) {
             if (theVertex.getValue().equals(target)) {
                 if (weight == 0) {
                     theVertex.getSourceWeightMap().remove(source);
@@ -81,9 +81,9 @@ public class ConcreteVerticesGraph implements Graph<String> {
         }
     }
     
-    @Override public boolean remove(String vertex) {
+    @Override public boolean remove(L vertex) {
         boolean ret = false;
-        for (Vertex theVertex : vertices) {
+        for (Vertex<L> theVertex : vertices) {
             if (theVertex.getValue().equals(vertex)) {
                 vertices.remove(theVertex);
                 ret = true;
@@ -93,19 +93,19 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return ret;
     }
     
-    @Override public Set<String> vertices() {
-        Set<String> ret = new HashSet<>();
-        for (Vertex vertex : vertices) {
+    @Override public Set<L> vertices() {
+        Set<L> ret = new HashSet<>();
+        for (Vertex<L> vertex : vertices) {
             ret.add(vertex.getValue());
         }
         return ret;
     }
     
-    @Override public Map<String, Integer> sources(String target) {
-        Set<String> validVertices = vertices();
-        for (Vertex vertex : vertices) {
+    @Override public Map<L, Integer> sources(L target) {
+        Set<L> validVertices = vertices();
+        for (Vertex<L> vertex : vertices) {
             if (vertex.getValue().equals(target)) {
-                for (String source : vertex.getSourceWeightMap().keySet()) {
+                for (L source : vertex.getSourceWeightMap().keySet()) {
                     if (!validVertices.contains(source)) {
                         vertex.getSourceWeightMap().remove(source);
                     }
@@ -116,11 +116,11 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return null;
     }
     
-    @Override public Map<String, Integer> targets(String source) {
-        Set<String> validVertices = vertices();
-        for (Vertex vertex : vertices) {
+    @Override public Map<L, Integer> targets(L source) {
+        Set<L> validVertices = vertices();
+        for (Vertex<L> vertex : vertices) {
             if (vertex.getValue().equals(source)) {
-                for (String target : vertex.getTargetWeightMap().keySet()) {
+                for (L target : vertex.getTargetWeightMap().keySet()) {
                     if (!validVertices.contains(target)) {
                         vertex.getTargetWeightMap().remove(target);
                     }
@@ -147,46 +147,46 @@ public class ConcreteVerticesGraph implements Graph<String> {
  * <p>PS2 instructions: the specification and implementation of this class is
  * up to you.
  */
-class Vertex {
+class Vertex<L> {
     
-    private final Map<String, Integer> sourceWeightMap;
-    private final Map<String, Integer> targetWeightMap;
-    private final String theString;
+    private final Map<L, Integer> sourceWeightMap;
+    private final Map<L, Integer> targetWeightMap;
+    private final L theL;
     
     // Abstraction function:
-    //   AF(sourceWeightMap, targetWeightMap, theString) = a legal vertex within the graph
+    //   AF(sourceWeightMap, targetWeightMap, theL) = a legal vertex within the graph
     // Representation invariant:
     //   the vertex exists
     // Safety from rep exposure:
     //   All fields are made private and final
     
-    public Vertex(String theString) {
+    public Vertex(L theL) {
         sourceWeightMap = new HashMap<>();
         targetWeightMap = new HashMap<>();
-        this.theString = theString;
+        this.theL = theL;
         checkRep();
     }
 
     private void checkRep() {}
 
-    public Map<String, Integer> getSourceWeightMap() {
+    public Map<L, Integer> getSourceWeightMap() {
         return sourceWeightMap;
     }
 
-    public Map<String, Integer> getTargetWeightMap() {
+    public Map<L, Integer> getTargetWeightMap() {
         return targetWeightMap;
     }
 
-    public String getValue() {
-        return theString;
+    public L getValue() {
+        return theL;
     }
 
-    public void addSource(String theString, int weight) {
-        sourceWeightMap.put(theString, weight);
+    public void addSource(L theL, int weight) {
+        sourceWeightMap.put(theL, weight);
     }
 
-    public void addTarget(String theString, int weight) {
-        targetWeightMap.put(theString, weight);
+    public void addTarget(L theL, int weight) {
+        targetWeightMap.put(theL, weight);
     }
 
     @Override
@@ -194,7 +194,7 @@ class Vertex {
         return "Vertex{" +
                 "sourceWeightMap=" + sourceWeightMap +
                 ", targetWeightMap=" + targetWeightMap +
-                ", theString='" + theString + '\'' +
+                ", theL='" + theL + '\'' +
                 '}';
     }
 }
