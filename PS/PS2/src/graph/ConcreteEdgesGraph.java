@@ -12,7 +12,7 @@ import java.util.*;
  */
 public class ConcreteEdgesGraph implements Graph<String> {
     
-    private Set<String> vertices;
+    private final Set<String> vertices;
     private List<Edge> edges;
     
     // Abstraction function:
@@ -52,7 +52,12 @@ public class ConcreteEdgesGraph implements Graph<String> {
             if (edge.getSource().equals(source) && edge.getTarget().equals(target)) {
                 found = true;
                 weightBefore = edge.getWeight();
-                edge.setWeight(weight);
+                if (weight != 0) {
+                    edge.setWeight(weight);
+                } else {
+                    edges.remove(edge);
+                }
+                break;
             }
         }
         checkRep();

@@ -78,6 +78,9 @@ public abstract class GraphInstanceTest {
         assertEquals(1, graph.set(string1, string2, 2));
         assertEquals(0, graph.set(string2, string1, 3));
         assertEquals(3, graph.set(string2, string1, 4));
+        assertEquals(1, graph.targets(string2).size());
+        assertEquals(4, graph.set(string2, string1, 0));
+        assertEquals(0, graph.targets(string2).size());
     }
 
     @Test
