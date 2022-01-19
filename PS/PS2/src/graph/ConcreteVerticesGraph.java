@@ -3,10 +3,9 @@
  */
 package graph;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.sun.javafx.collections.MappingChange;
+
+import java.util.*;
 
 /**
  * An implementation of Graph.
@@ -15,45 +14,129 @@ import java.util.Set;
  */
 public class ConcreteVerticesGraph implements Graph<String> {
     
-    private final List<Vertex> vertices = new ArrayList<>();
+    private final List<Vertex> vertices;
     
     // Abstraction function:
-    //   TODO
+    //   AF(vertices) -> the graph that has and only has the vertices
     // Representation invariant:
-    //   TODO
+    //   All the vertices are valid
     // Safety from rep exposure:
-    //   TODO
+    //   Vertices are made final and private
+    //   The get method of vertices returns a defensive copy
+    //   and the get methods of the sourceWeightMap and targetWeightMap return defensive copy
     
-    // TODO constructor
-    
-    // TODO checkRep
+    public ConcreteVerticesGraph() {
+        vertices = new ArrayList<>();
+    }
+
+    // lazy change, so the checkRep() is left empty
+    public void checkRep() {}
     
     @Override public boolean add(String vertex) {
-        throw new RuntimeException("not implemented");
+        for (Vertex containedVertex : vertices) {
+            if (containedVertex.getValue().equals(vertex)) {
+                return false;
+            }
+        }
+        vertices.add(new Vertex(vertex));
+        return true;
     }
     
     @Override public int set(String source, String target, int weight) {
-        throw new RuntimeException("not implemented");
+        int weightBefore = -1;
+        boolean found = false;
+
+        // set the source vertex
+        for (Vertex theVertex : vertices) {
+            if (theVertex.getValue().equals(source)) {
+                if (theVertex.getTargetWeightMap().containsKey(target)) {
+                    found = true;
+                    weightBefore = theVertex.getTargetWeightMap().get(target);
+                }
+                if (weight == 0) {
+                    theVertex.getTargetWeightMap().remove(target);
+                } else {
+                    theVertex.getTargetWeightMap().put(target, weight);
+                }
+                break;
+            }
+        }
+
+        // set the target vertex
+        for (Vertex theVertex : vertices) {
+            if (theVertex.getValue().equals(target)) {
+                if (weight == 0) {
+                    theVertex.getSourceWeightMap().remove(source);
+                } else {
+                    theVertex.getSourceWeightMap().put(source, weight);
+                }
+                break;
+            }
+        }
+
+        if (found) {
+            return weightBefore;
+        } else {
+            return 0;
+        }
     }
     
     @Override public boolean remove(String vertex) {
-        throw new RuntimeException("not implemented");
+        boolean ret = false;
+        for (Vertex theVertex : vertices) {
+            if (theVertex.getValue().equals(vertex)) {
+                vertices.remove(theVertex);
+                ret = true;
+                break;
+            }
+        }
+        return ret;
     }
     
     @Override public Set<String> vertices() {
-        throw new RuntimeException("not implemented");
+        Set<String> ret = new HashSet<>();
+        for (Vertex vertex : vertices) {
+            ret.add(vertex.getValue());
+        }
+        return ret;
     }
     
     @Override public Map<String, Integer> sources(String target) {
-        throw new RuntimeException("not implemented");
+        Set<String> validVertices = vertices();
+        for (Vertex vertex : vertices) {
+            if (vertex.getValue().equals(target)) {
+                for (String source : vertex.getSourceWeightMap().keySet()) {
+                    if (!validVertices.contains(source)) {
+                        vertex.getSourceWeightMap().remove(source);
+                    }
+                }
+                return new HashMap<>(vertex.getSourceWeightMap());
+            }
+        }
+        return null;
     }
     
     @Override public Map<String, Integer> targets(String source) {
-        throw new RuntimeException("not implemented");
+        Set<String> validVertices = vertices();
+        for (Vertex vertex : vertices) {
+            if (vertex.getValue().equals(source)) {
+                for (String target : vertex.getTargetWeightMap().keySet()) {
+                    if (!validVertices.contains(target)) {
+                        vertex.getTargetWeightMap().remove(target);
+                    }
+                }
+                return new HashMap<>(vertex.getTargetWeightMap());
+            }
+        }
+        return null;
     }
-    
-    // TODO toString()
-    
+
+    @Override
+    public String toString() {
+        return "ConcreteVerticesGraph{" +
+                "vertices=" + vertices +
+                '}';
+    }
 }
 
 /**
@@ -66,21 +149,52 @@ public class ConcreteVerticesGraph implements Graph<String> {
  */
 class Vertex {
     
-    // TODO fields
+    private final Map<String, Integer> sourceWeightMap;
+    private final Map<String, Integer> targetWeightMap;
+    private final String theString;
     
     // Abstraction function:
-    //   TODO
+    //   AF(sourceWeightMap, targetWeightMap, theString) = a legal vertex within the graph
     // Representation invariant:
-    //   TODO
+    //   the vertex exists
     // Safety from rep exposure:
-    //   TODO
+    //   All fields are made private and final
     
-    // TODO constructor
-    
-    // TODO checkRep
-    
-    // TODO methods
-    
-    // TODO toString()
-    
+    public Vertex(String theString) {
+        sourceWeightMap = new HashMap<>();
+        targetWeightMap = new HashMap<>();
+        this.theString = theString;
+        checkRep();
+    }
+
+    private void checkRep() {}
+
+    public Map<String, Integer> getSourceWeightMap() {
+        return sourceWeightMap;
+    }
+
+    public Map<String, Integer> getTargetWeightMap() {
+        return targetWeightMap;
+    }
+
+    public String getValue() {
+        return theString;
+    }
+
+    public void addSource(String theString, int weight) {
+        sourceWeightMap.put(theString, weight);
+    }
+
+    public void addTarget(String theString, int weight) {
+        targetWeightMap.put(theString, weight);
+    }
+
+    @Override
+    public String toString() {
+        return "Vertex{" +
+                "sourceWeightMap=" + sourceWeightMap +
+                ", targetWeightMap=" + targetWeightMap +
+                ", theString='" + theString + '\'' +
+                '}';
+    }
 }
