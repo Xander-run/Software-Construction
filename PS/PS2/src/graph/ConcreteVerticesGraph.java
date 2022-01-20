@@ -128,7 +128,8 @@ public class ConcreteVerticesGraph<L> implements Graph<L> {
                 return new HashMap<>(vertex.getTargetWeightMap());
             }
         }
-        return null;
+        // Avoid return null without specification. Avoid return null.
+        return new HashMap<>();
     }
 
     @Override
