@@ -5,6 +5,8 @@ package poet;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.*;
 
 import graph.Graph;
 
@@ -53,13 +55,13 @@ import graph.Graph;
 public class GraphPoet {
     
     private final Graph<String> graph = Graph.empty();
-    
+
     // Abstraction function:
-    //   TODO
+    //   AF(graph) = The Graph poet as described above
     // Representation invariant:
-    //   TODO
+    //   RI: graph is consistent with the corpus
     // Safety from rep exposure:
-    //   TODO
+    //   The field graph is made private and final. The get method of graph is made package level private
     
     /**
      * Create a new poet with the graph from corpus (as described above).
@@ -68,7 +70,19 @@ public class GraphPoet {
      * @throws IOException if the corpus file cannot be found or read
      */
     public GraphPoet(File corpus) throws IOException {
-        throw new RuntimeException("not implemented");
+        List<String> corputStringList = Files.readAllLines(corpus.toPath());
+        for (String theString : corputStringList) {
+            expendGraphFromString(theString);
+        }
+    }
+
+    /**
+     * Create a new poet with the graph from corpus (as described above).
+     *
+     * @param corpus text file from which to derive the poet's affinity graph
+     */
+    public GraphPoet(String corpus) {
+        expendGraphFromString(corpus);
     }
     
     // TODO checkRep
@@ -80,9 +94,69 @@ public class GraphPoet {
      * @return poem (as described above)
      */
     public String poem(String input) {
-        throw new RuntimeException("not implemented");
+        String[] splitInput = input.split("\\s+");
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 1; i < splitInput.length; i++) {
+            sb.append(splitInput[i - 1]);
+            sb.append(' ');
+            String source = splitInput[i - 1].toLowerCase(Locale.ROOT);
+            String target = splitInput[i].toLowerCase(Locale.ROOT);
+            Set<String> candidate = graph.targets(source).keySet();
+            // The intersection that is both the target of the source and source of the target is the candidate
+            candidate.retainAll(graph.sources(target).keySet());
+            if (candidate.size() > 0) {
+                List<String> candidateList = new ArrayList<>(candidate);
+                String intermediate = candidateList.get(0);
+                int maxWeight = graph.sources(intermediate).get(source) + graph.targets(intermediate).get(target);
+                for (int j = 1; j < candidateList.size(); j++) {
+                    String temp = candidateList.get(i);
+                    int currentWeight = graph.sources(temp).get(source) + graph.targets(temp).get(target);
+                    if (currentWeight > maxWeight) {
+                        maxWeight = currentWeight;
+                        intermediate = temp;
+                    }
+                }
+                sb.append(intermediate);
+                sb.append(' ');
+            }
+
+            if (i == splitInput.length - 1) {
+                sb.append(splitInput[i]);
+            }
+        }
+
+        return sb.toString();
     }
-    
-    // TODO toString()
-    
+
+    void expendGraphFromString(String theString) {
+        if (theString.length() == 0) {
+            return;
+        }
+        String[] splitString = theString.split("\\s+");
+
+        for (int i = 0; i < splitString.length; i++) {
+            splitString[i] = splitString[i].toLowerCase(Locale.ROOT);
+        }
+
+        for (String item : splitString) {
+            graph.add(item);
+        }
+
+        for (int i = 1; i < splitString.length; i++) {
+            int weight = graph.targets(splitString[i - 1]).getOrDefault(splitString[i], 0) + 1;
+            graph.set(splitString[i - 1], splitString[i], weight);
+        }
+    }
+
+    Graph<String> getGraph() {
+        return graph;
+    }
+
+    @Override
+    public String toString() {
+        return "GraphPoet{" +
+                "graph=" + graph +
+                '}';
+    }
 }
