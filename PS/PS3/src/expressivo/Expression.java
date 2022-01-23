@@ -15,10 +15,7 @@ package expressivo;
  * Declare concrete variants of Expression in their own Java source files.
  */
 public interface Expression {
-    
-    // Datatype definition
-    //   TODO
-    
+
     /**
      * Parse an expression.
      * @param input expression to parse, as defined in the PS3 handout.
